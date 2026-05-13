@@ -1,0 +1,153 @@
+"use client";
+import { useState, useRef, useEffect } from "react";
+import { motion } from 'framer-motion';
+import React from 'react'
+
+const AiChatbotSection = () => {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const messagesEndRef = useRef(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  async function sendMessage() {
+  if (!input.trim()) return;
+
+  const userMessage = input;
+  setInput("");
+
+  setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
+
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userMessage }),
+  });
+
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        text: data?.error || "Sorry, I ran into an issue. Please try again.",
+      },
+    ]);
+    return;
+  }
+
+  setMessages((prev) => [
+    ...prev,
+    { role: "assistant", text: data?.reply || "I could not generate a reply." },
+  ]);
+}
+  return (
+    <>
+      {/* Floating Button */}
+      <motion.button
+        onClick={() => setOpen(!open)}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full
+        bg-linear-to-r from-blue-500 to-blue-500
+        shadow-[0_0_60px_rgba(34,211,238,0.95)]
+        text-white text-xl z-50"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        🤖
+      </motion.button>
+
+      {open && (
+        <motion.div 
+          className="fixed bottom-24 right-6 w-80 h-[420px]
+bg-blue-950/40 backdrop-blur-2xl
+border border-blue-400/30 rounded-xl
+shadow-[0_0_60px_rgba(59,130,246,0.45)]
+flex flex-col z-50"
+          initial={{ scale: 0, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0, opacity: 0, y: 20 }}
+          transition={{ duration: 0.3 }}
+        >
+
+          <div className="p-4 border-b border-gray-700 text-blue-400 font-semibold">
+            Ask about Vignesh
+          </div>
+
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                className={`max-w-[80%] px-3 py-2 rounded-lg ${
+                  m.role === "user"
+                    ? "bg-purple-500 text-white ml-auto"
+                    : "bg-gray-800 text-gray-200"
+                }`}
+              >
+                {m.text}
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="p-3 border-t border-gray-700 flex items-center gap-2">
+  <input
+    value={input}
+    onChange={(e) => setInput(e.target.value)}
+    placeholder="Ask about projects, skills..."
+    className="flex-1 bg-[#111] border border-gray-700
+    rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500
+    focus:outline-none focus:border-purple-400"
+    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+  />
+
+  <button
+    onClick={sendMessage}
+    disabled={!input.trim()}
+    className="
+      p-2 rounded-lg
+      bg-purple-600 hover:bg-purple-700
+      disabled:bg-gray-700 disabled:cursor-not-allowed
+      transition-all
+      hover:shadow-[0_0_15px_rgba(168,85,247,0.6)]
+    "
+    aria-label="Send message"
+    title="Send"
+  >
+    {/* Send Icon */}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5 text-white"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 12h14M12 5l7 7-7 7"
+      />
+    </svg>
+  </button>
+</div>
+        </motion.div>
+      )}
+    </>
+  );
+}
+
+export default AiChatbotSection;
+

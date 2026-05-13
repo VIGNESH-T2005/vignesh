@@ -1,0 +1,105 @@
+"use client"
+import React from 'react'
+import Image from 'next/image'
+import { TypeAnimation } from 'react-type-animation';
+import { motion } from 'framer-motion';
+
+
+const HeroSection = () => {
+    //this is the landing page of the portfolio
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 items-center mt-5">
+      
+      {/* Left Content */}
+      <motion.div 
+        className="col-span-8 sm:pl-15 sm:pr-15 text-center sm:justify-center sm:items-center sm:text-left"
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+      
+        <motion.h1 
+          className="mb-4 text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight sm:text-5xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <span className="text-white">Hello, I&apos;m </span>
+          <br/>
+          <span className="bg-linear-to-r from-blue-400 to-gray-500 bg-clip-text text-transparent inline-block min-w-70 sm:min-w-80 lg:min-w-120">
+           
+
+    <TypeAnimation
+      sequence={[
+        // Same substring at the start will only be typed out once, initially
+        "Vignesh T|" ,
+        1000, // wait 1s before replacing "Mice" with "Hamsters"
+        "Full Stack Developer|",
+        1000,
+        "Problem Solver|" ,
+         1000,
+       
+      
+      ]}
+      wrapper="span"
+      speed={50}
+      repeat={Infinity}
+    />
+  
+          
+          </span>
+        </motion.h1>
+
+        <motion.p 
+          className="text-[#ADB7BE] text-base lg:text-lg leading-relaxed max-w-xl mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          Full-Stack Developer and competitive programmer with strong DSA fundamentals,
+          experienced in building scalable web applications and AI-powered products using
+          modern tech stacks.
+        </motion.p>
+       
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+            <button className="px-10 py-4 w-full rounded-full mr-4 mb-2 hover:bg-slate-300 text-white sm:w-fit bg-linear-to-br from-black-500 via-blue-500 to-black-500 suppressHydrationWarning ">Hire Me</button>
+           <a href="/VigneshResume.pdf" download target="_blank" rel="noopener noreferrer">
+  <button
+    className="px-1 py-1 sm:w-fit w-full rounded-full bg-linear-to-br from-blue-500 via-blue-500 to-blue-500 hover:scale-105 transition ">
+    <span className="block bg-[#121212] hover:bg-slate-800 rounded-full px-7 py-3 text-white ">
+      Download Resume
+    </span>
+  </button>
+</a>
+        </motion.div>
+      </motion.div>
+
+      {/* Right Image */}
+      <motion.div 
+        className="col-span-4 flex justify-center items-center self-center"
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+               <div className="relative w-62.5 h-62.5 lg:w-75 lg:h-110 rounded-3xl overflow-hidden border-5 border-blue-500 shadow-[0_0_60px_rgba(34,211,238,0.35)] hidden md:block">
+
+          <Image
+            src="/vignesh_photo.jpeg"
+            alt="Vignesh T"
+            width={300}
+            height={300}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 object-cover "
+            priority
+
+          />
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default HeroSection
