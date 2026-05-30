@@ -54,20 +54,27 @@ const AiChatbotSection = () => {
   return (
     <>
       {/* Floating Button */}
-      <motion.button
-        onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full
-        bg-linear-to-r from-blue-500 to-blue-500
-        shadow-[0_0_60px_rgba(34,211,238,0.95)]
-        text-white text-xl z-50"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        🤖
-      </motion.button>
+      <div className="fixed bottom-6 right-6 flex flex-col items-center gap-2 z-50">
+        {!open && (
+          <span className="text-xs text-cyan-300 bg-blue-900/70 px-3 py-1 rounded-full border border-cyan-400/30 whitespace-nowrap">
+            Ask AI Chatbot 💬
+          </span>
+        )}
+        <motion.button
+          onClick={() => setOpen(!open)}
+          className="w-14 h-14 rounded-full
+          bg-linear-to-r from-blue-500 to-blue-500
+          shadow-[0_0_60px_rgba(34,211,238,0.95)]
+          text-white text-xl"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          🤖
+        </motion.button>
+      </div>
 
       {open && (
         <motion.div 
@@ -150,4 +157,3 @@ flex flex-col z-50"
 }
 
 export default AiChatbotSection;
-
