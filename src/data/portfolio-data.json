@@ -1,0 +1,34 @@
+[
+  {
+    "id": "about",
+    "text": "Vignesh is a B.E. Electronics and Communication Engineering student (2023–2027) with a CGPA of 8.26 at Dhanalakshmi Srinivasan Engineering College, Perambalur. He has strong fundamentals in Data Structures, Algorithms, and full-stack development."
+  },
+  {
+    "id": "skills_programming",
+    "text": "Vignesh is proficient in C++, C, JavaScript, TypeScript, Python, and Java with strong knowledge of Object-Oriented Programming and debugging."
+  },
+{
+  "id": "project_tic-tac-toe",
+  "text": "Project: Tic-Tac-Toe. Vignesh built a responsive and user-friendly interface for the classic Tic-Tac-Toe game, strengthening problem-solving and DOM manipulation skills."
+},
+{
+  "id": "project_shopzone",
+  "text": "Project: Shop Zone. Vignesh developed a e-commerce project with product listings, shopping cart functionality, and responsive user interface design."
+},
+{
+  "id": "project_stopwatch",
+  "text": "Project: Stop Watch. Vignesh created a simple stop watch application with start, stop, and reset functionality and a clean, intuitive user interface."
+} ,
+  {
+    "id": "achievements",
+    "text": "Vignesh has Achieved academic excellence by securing 3rd position and receiving recognition at HERTZ 2024 and also participated in technical event Nexora project Expo and Niral Thiruvizha."
+  },
+  {
+    "id": "leadership",
+    "text": "Vignesh has strong communication skills demonstrated through presentations, and technical discussions and has actively participated in team projects and hackathons, showcasing leadership and collaboration abilities."
+  }  ,
+  {
+  "id": "projects_summary",
+  "text": "Projects: Vignesh has built multiple full-stack software projects including tic-tac-toe, shopzone, to-do list, and stopwatch. These projects demonstrate experience in AI integration, MERN stack development, authentication systems, REST APIs, database design, and scalable web application architecture."
+}
+]
