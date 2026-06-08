@@ -70,7 +70,7 @@ const TAB_DATA=[
         — Jawahar Matric Higher Secondary School
         <br />
         <span className="text-sm text-gray-400">
-          2021 – 2022 | Percentage: 78.6%
+          2022 – 2023 | Percentage: 78.6%
         </span>
       </li>
 
@@ -81,7 +81,7 @@ const TAB_DATA=[
         —  Jawahar Higher Secondary School (CBSE)
         <br />
         <span className="text-sm text-gray-400">
-          2019 – 2020 | Percentage: 76.4%
+          2020 – 2021 | Percentage: 76.4%
         </span>
       </li>
     </ul>
