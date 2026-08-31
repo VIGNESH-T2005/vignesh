@@ -90,7 +90,7 @@ const HeroSection = () => {
         {/* Desktop: squircle tall frame */}
         <div className="relative w-64 h-72 lg:w-72 lg:h-84 rounded-[30%] overflow-hidden border-[3px] border-blue-500 shadow-[0_0_0_6px_rgba(59,130,246,0.15)] hidden md:block">
           <Image
-            src="/vignesh_photo.jpeg"
+            src="/dp.png"
             alt="Vignesh T"
             fill
             className="object-cover object-top"
