@@ -6,23 +6,24 @@ import { motion, useInView } from 'framer-motion'
 
 //data for the project cards
 const projectsData=[
-
   {
   id: 1,
+  title: "Shop Zone",
+  description: "Developed a basic e-commerce website named Shop Zone with product listings, shopping cart functionality, and responsive user interface design.",
+  image: "/shop_zone.png",
+  url:"https://github.com/VIGNESH-T2005/shop_zone",
+  liveurl:"https://shop-zone-ecomm.vercel.app/"
+},
+
+  {
+  id: 2,
   title: "Tic-Tac-Toe",
   description: "Designed a responsive and user-friendly interface of tic-tac-toe game while strengthening problem-solving and DOM manipulation skills.",
   image: "/tic-tac-toe.png",
   url:"https://github.com/VIGNESH-T2005/Tic-Tac-Toe",
   liveurl:"https://tic-tac-toe-in-site.netlify.app/"
 },
-{
-  id: 2,
-  title: "Shop Zone",
-  description: "Developed a basic e-commerce website named Shop Zone with product listings, shopping cart functionality, and responsive user interface design.",
-  image: "/shop_zone.png",
-  url:"https://github.com/VIGNESH-T2005/Responsive-landing-page-shop-zone-.git",
-  liveurl:"https://shopzone-ecommerce.netlify.app/"
-},
+
 {
   id: 3,
   title: "Stop Watch",
