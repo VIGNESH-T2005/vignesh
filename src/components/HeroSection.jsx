@@ -79,7 +79,7 @@ const HeroSection = () => {
         {/* Mobile: squircle compact headshot */}
         <div className="relative w-36 h-36 rounded-[30%] overflow-hidden border-[3px] border-blue-500 shadow-[0_0_0_6px_rgba(59,130,246,0.15)] md:hidden">
           <Image
-            src="/vignesh_photo.jpeg"
+            src="/dp.png"
             alt="Vignesh T"
             fill
             className="object-cover object-top"
