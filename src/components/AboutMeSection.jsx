@@ -16,7 +16,7 @@ const TAB_DATA=[
          <ul className="list-disc list-inside space-y-3 text-gray-300">
       <li>
         <span className="font-semibold text-white">Languages:</span>{" "}
-        C++, C, JavaScript (ES6+), Java, Python
+        Java, JavaScript (ES6+), C#
       </li>
 
       <li>
@@ -26,17 +26,17 @@ const TAB_DATA=[
 
       <li>
         <span className="font-semibold text-white">Backend:</span>{" "}
-        Node.js, Express.js, REST APIs, Authentication 
+        ASP.NET Core, .NET 8, REST APIs, Authentication 
       </li>
 
       <li>
         <span className="font-semibold text-white">Databases:</span>{" "}
-        MongoDB, MySQL, PostgreSQL
+        MySQL, PostgreSQL
       </li>
 
       <li>
-        <span className="font-semibold text-white">DevOps & Tools:</span>{" "}
-        Git, GitHub, Docker (Basics), Postman
+        <span className="font-semibold text-white">Tools:</span>{" "}
+        Git, GitHub, Postman, Swagger
       </li>
 
       <li>
@@ -59,7 +59,7 @@ const TAB_DATA=[
         —Dhanalakshmi Srinivasan Engineering College (DSEC), Perambalur  
         <br />
         <span className="text-sm text-gray-400">
-          2023 – 2027 | CGPA: 8.16
+          2023 – 2027 | CGPA: 8.21
         </span>
       </li>
 

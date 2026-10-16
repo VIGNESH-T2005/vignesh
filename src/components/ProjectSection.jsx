@@ -8,38 +8,20 @@ import { motion, useInView } from 'framer-motion'
 const projectsData=[
   {
   id: 1,
+  title: "HRC TECH",
+  description: "HRC TECH is a e-learning platform that provides a wide range of courses and resources for learners to enhance their skills and knowledge in various domains.",
+  image: "/hrc-tech.png",
+  url:"https://github.com/VIGNESH-T2005/hrc-tech",
+  liveurl:"https://hrctech.onrender.com/"
+},
+  {
+  id: 2,
   title: "Shop Zone",
   description: "Developed a basic e-commerce website named Shop Zone with product listings, shopping cart functionality, and responsive user interface design.",
   image: "/shop_zone.png",
   url:"https://github.com/VIGNESH-T2005/shop_zone",
   liveurl:"https://shop-zone-ecomm.vercel.app/"
-},
-
-  {
-  id: 2,
-  title: "Tic-Tac-Toe",
-  description: "Designed a responsive and user-friendly interface of tic-tac-toe game while strengthening problem-solving and DOM manipulation skills.",
-  image: "/tic-tac-toe.png",
-  url:"https://github.com/VIGNESH-T2005/Tic-Tac-Toe",
-  liveurl:"https://tic-tac-toe-in-site.netlify.app/"
-},
-
-{
-  id: 3,
-  title: "Stop Watch",
-  description: "A simple stop watch application with start, stop, and reset functionality.",
-  image: "/stop_watch.png",
-  url:"https://github.com/VIGNESH-T2005/Stop-Watch.git",
-  liveurl:"https://stop-watch-app-sw.netlify.app/"
-},
-{
-  id: 4,
-  title: "To-Do List",
-  description: "A simple and intuitive to-do list application with task management and organization features.",
-  image: "/to_do_list.png",
-  url:"https://github.com/VIGNESH-T2005/To-Do-List.git",
-  liveurl:"https://to-do-list-site.netlify.app/"
-},
+}
 ]
 
 const ProjectSection = () => {

@@ -26,11 +26,11 @@ const HeroSection = () => {
           <span className="bg-linear-to-r from-blue-400 to-gray-500 bg-clip-text text-transparent inline-block min-w-70 sm:min-w-80 lg:min-w-120">
             <TypeAnimation
               sequence={[
-                "Vignesh T|",
+                "Vignesh T ",
                 1000,
-                "Full Stack Developer|",
+                "Full Stack Developer ",
                 1000,
-                "Problem Solver|",
+                "Problem Solver ",
                 1000,
               ]}
               wrapper="span"
@@ -59,7 +59,7 @@ const HeroSection = () => {
           <button className="px-10 py-4 w-full rounded-full mr-4 mb-2 hover:bg-slate-300 text-white sm:w-fit bg-linear-to-br from-black-500 via-blue-500 to-black-500 suppressHydrationWarning">
             Hire Me
           </button>
-          <a href="/Vignesh-T.pdf" download target="_blank" rel="noopener noreferrer">
+          <a href="/Vignesh-T (7).pdf" download target="_blank" rel="noopener noreferrer">
             <button className="px-1 py-1 sm:w-fit w-full rounded-full bg-linear-to-br from-blue-500 via-blue-500 to-blue-500 hover:scale-105 transition">
               <span className="block bg-[#121212] hover:bg-slate-800 rounded-full px-7 py-3 text-white">
                 Download Resume
