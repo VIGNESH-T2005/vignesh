@@ -1,46 +1,37 @@
 import { NextResponse } from "next/server";
+import { SITE } from "@/data/site";
 
+export const revalidate = 3600;
 
-const USERNAME="vignesh_webdev"; //my leetcode user name
+const USER = SITE.socials.leetcode.user;
+const BASE = "https://alfa-leetcode-api.onrender.com"; // community API, may be slow or down
 
-const FALLBACK_STATS = {
-    totalSolved: 0,
-    easySolved: 0,
-    mediumSolved: 0,
-    hardSolved: 0,
-    ranking: "N/A",
-};
+async function getJson(path) {
+  const res = await fetch(`${BASE}/${USER}${path}`, {
+    next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(6000),
+  });
+  if (!res.ok) throw new Error(`LeetCode API ${res.status}`);
+  return res.json();
+}
 
-export async function GET(){
-    try{
-        //fetching the leetcode problems data from the api
-        const res=await fetch(
-            `https://alfa-leetcode-api.onrender.com/${USERNAME}/solved`,
-           {
-             next : {revalidate : 3600} , //cache for 1 hour
-            }
-        );
-
-          const globalRanking= await fetch(`https://alfa-leetcode-api.onrender.com/${USERNAME}` ,{next: {revalidate : 3600}});
-
-
-
-        if (!res.ok  || !globalRanking.ok) {
-            return NextResponse.json(FALLBACK_STATS);
-        }
-
-        const data = await res.json();
-
-        const globalRankingdata=await globalRanking.json();
-
-        return NextResponse.json({
-            totalSolved: data?.solvedProblem ?? 0,
-            easySolved: data?.easySolved ?? 0,
-            mediumSolved: data?.mediumSolved ?? 0,
-            hardSolved: data?.hardSolved ?? 0,
-            ranking:  globalRankingdata?.ranking ?? "N/A",
-        });
-    }catch(error){
-         return NextResponse.json(FALLBACK_STATS);
+// Never returns invented numbers: if the upstream API fails, `available` is false.
+export async function GET() {
+  try {
+    const [solved, profile] = await Promise.allSettled([getJson("/solved"), getJson("")]);
+    if (solved.status !== "fulfilled" || typeof solved.value?.solvedProblem !== "number") {
+      return NextResponse.json({ available: false });
     }
+    const s = solved.value;
+    return NextResponse.json({
+      available: true,
+      total: s.solvedProblem,
+      easy: s.easySolved ?? 0,
+      medium: s.mediumSolved ?? 0,
+      hard: s.hardSolved ?? 0,
+      ranking: profile.status === "fulfilled" && typeof profile.value?.ranking === "number" ? profile.value.ranking : null,
+    });
+  } catch {
+    return NextResponse.json({ available: false });
+  }
 }
