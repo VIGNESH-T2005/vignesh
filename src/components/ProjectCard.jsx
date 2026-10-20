@@ -1,55 +1,41 @@
-import React from 'react'
-import Link from 'next/link'
+import Image from "next/image";
+import Link from "next/link";
+import { Tag, statusTone } from "./ui";
+import { GithubIcon, ExternalIcon } from "./Icons";
+import { fmtMonth } from "@/lib/cache";
 
-const ProjectCard = ({imgUrl , title , description ,url, liveurl}) => {
+// `p` is a light, serialisable project summary (see lib/projectSummaries).
+export default function ProjectCard({ p, featured = false }) {
   return (
-    <div className="bg-black backdrop-blur-lg p-3 rounded-xl hover:-translate-y-2 active:-translate-y-2   md:shadow-none md:hover:shadow-[0_0_60px_rgba(34,211,238,0.45)] transition-all duration-300 shadow-[0_0_25px_rgba(236,72,153,0.3)]  ">
-      <div className="h-52 mb-2 md:h-72 rounded-t-xl relative group bg-white" style={{background: `url(${imgUrl})` , backgroundSize:"cover"}}>
-      <div className="items-center justify-center overlay absolute top-0 left-0 w-full h-full bg-[#181818] bg-opacity-0 hidden group-hover:flex group-hover:bg-[rgba(18,18,18,0.7)] group-active:flex group-active:bg-[rgba(18,18,18,0.7)] group-hover:backdrop-blur group-active:backdrop-blur transition-all duration-500   ">
-       <Link   target="_blank" rel="noopener noreferrer" href={url} className="h-14 w-14 relative rounded-full border-2 border-[#ADB7BE] hover:border-white active:border-white flex items-center justify-center">
-
-       {/* code bracket icon */}
-       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-7">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
-      </svg>
-
-       </Link> 
-        <Link
-            target="_blank"
-            rel="noopener noreferrer"
-            href={liveurl}
-            className="h-14 w-14 rounded-full border-2 border-[#ADB7BE] hover:border-cyan-400 flex items-center justify-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-7"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6.75 7.5h3.75M6.75 12h3.75m-3.75 4.5h10.5"
-              />
-            </svg>
-          </Link>
-
+    <article className={`group relative flex overflow-hidden rounded-2xl border border-line bg-surface transition hover:-translate-y-1 hover:border-accent/60 hover:shadow-[0_10px_40px_var(--glow)] ${featured ? "flex-col md:flex-row" : "flex-col"}`}>
+      <div className={`relative aspect-[2.1/1] overflow-hidden border-b border-line bg-black ${featured ? "md:aspect-auto md:min-h-[300px] md:w-1/2 md:border-b-0 md:border-r" : ""}`}>
+        {p.image ? (
+          <Image src={p.image} alt={p.imageAlt ?? ""} fill sizes={featured ? "(max-width: 768px) 100vw, 560px" : "(max-width: 768px) 100vw, 420px"} className={featured ? "object-contain" : "object-cover object-top"} />
+        ) : (
+          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-accent/20 to-accent-2/20 p-4 text-center" aria-hidden="true">
+            <span className="font-display text-2xl font-bold gradient-text">{p.title}</span>
+          </div>
+        )}
+        {p.rank === 1 ? <span className="absolute left-3 top-3 rounded-full bg-bg/85 px-3 py-1 font-mono text-xs backdrop-blur">Flagship</span> : null}
       </div>
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <div className="flex flex-wrap items-center gap-2"><Tag tone="accent">{p.category}</Tag><Tag tone={statusTone(p.status)}>{p.status}</Tag></div>
+        <h3 className="mt-3 text-xl font-bold">
+          <Link href={`/projects/${p.slug}`} className="after:absolute after:inset-0 after:content-['']">{p.title}</Link>
+        </h3>
+        <p className="mt-1 text-sm font-medium">{p.tagline}</p>
+        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">{p.summary}</p>
+        <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Tech stack">
+          {p.stack.slice(0, featured ? 9 : 5).map((t) => <li key={t}><Tag>{t}</Tag></li>)}
+        </ul>
+        <div className="relative z-10 mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-5 text-sm">
+          <span className="text-xs text-muted">{p.commits} commits{p.last ? ` · updated ${fmtMonth(p.last)}` : ""}</span>
+          <span className="ml-auto flex gap-3">
+            {p.github ? <a href={p.github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-muted hover:text-fg"><GithubIcon width={16} height={16} />Code<span className="sr-only"> (opens in a new tab)</span></a> : null}
+            {p.live ? <a href={p.live} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-muted hover:text-fg"><ExternalIcon width={16} height={16} />Live<span className="sr-only"> (opens in a new tab)</span></a> : null}
+          </span>
+        </div>
       </div>
-      
-      <div classame="text-white rounded-b-xl bg-[#181818] py-6 px-4">
-      <h5 className="font-xl font-semibold mb-2">{title}</h5>
-      <p className="text-[#ADB7BE]">{description}</p>
-      </div>
-    </div>
-  )
+    </article>
+  );
 }
-
-export default ProjectCard

@@ -1,106 +1,75 @@
-"use client"
-import React from 'react'
-import Image from 'next/image'
-import { TypeAnimation } from 'react-type-animation';
-import { motion } from 'framer-motion';
+"use client";
+import Image from "next/image";
+import { TypeAnimation } from "react-type-animation";
+import { useReducedMotion } from "framer-motion";
+import { SITE } from "@/data/site";
+import { GithubIcon, LinkedinIcon, CodeIcon, DownloadIcon, ArrowRightIcon, MailIcon } from "./Icons";
 
-const HeroSection = () => {
+const social = [
+  { ...SITE.socials.github, Icon: GithubIcon },
+  { ...SITE.socials.linkedin, Icon: LinkedinIcon },
+  { ...SITE.socials.leetcode, Icon: CodeIcon },
+];
+
+export default function HeroSection() {
+  const reduce = useReducedMotion();
+  const sequence = SITE.roles.flatMap((r) => [r, 1800]);
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 items-center mt-5">
+    <section id="top" aria-labelledby="hero-title" className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-20 pt-14 sm:px-6 md:grid-cols-[1.3fr_1fr] md:pt-24">
+      <div>
+        <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 font-mono text-xs text-muted">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true" />
+          Open to full-stack developer roles
+        </p>
+        <h1 id="hero-title" className="mt-5 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+          Hi, I&apos;m <span className="gradient-text">{SITE.name}</span>
+        </h1>
+        <p className="mt-3 min-h-9 font-display text-xl text-fg sm:text-2xl" aria-live="off">
+          {reduce ? (
+            SITE.roles[0]
+          ) : (
+            <TypeAnimation sequence={sequence} wrapper="span" speed={55} repeat={Infinity} />
+          )}
+        </p>
+        <p className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">{SITE.intro}</p>
 
-      {/* Left Content */}
-      <motion.div
-        className="col-span-8 sm:pl-15 sm:pr-15 text-center sm:justify-center sm:items-center sm:text-left"
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.h1
-          className="mb-4 text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight sm:text-5xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <span className="text-white">Hello, I&apos;m </span>
-          <br/>
-          <span className="bg-linear-to-r from-blue-400 to-gray-500 bg-clip-text text-transparent inline-block min-w-70 sm:min-w-80 lg:min-w-120">
-            <TypeAnimation
-              sequence={[
-                "Vignesh T ",
-                1000,
-                "Full Stack Developer ",
-                1000,
-                "Problem Solver ",
-                1000,
-              ]}
-              wrapper="span"
-              speed={50}
-              repeat={Infinity}
-            />
-          </span>
-        </motion.h1>
-
-        <motion.p
-          className="text-[#ADB7BE] text-base lg:text-lg leading-relaxed max-w-xl mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          Full-Stack Developer and competitive programmer with strong DSA fundamentals,
-          experienced in building scalable web applications and AI-powered products using
-          modern tech stacks.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <button className="px-10 py-4 w-full rounded-full mr-4 mb-2 hover:bg-slate-300 text-white sm:w-fit bg-linear-to-br from-black-500 via-blue-500 to-black-500 suppressHydrationWarning">
-            Hire Me
-          </button>
-          <a href="/Vignesh-T (7).pdf" download target="_blank" rel="noopener noreferrer">
-            <button className="px-1 py-1 sm:w-fit w-full rounded-full bg-linear-to-br from-blue-500 via-blue-500 to-blue-500 hover:scale-105 transition">
-              <span className="block bg-[#121212] hover:bg-slate-800 rounded-full px-7 py-3 text-white">
-                Download Resume
-              </span>
-            </button>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <a href="#projects" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 font-semibold sm:py-3 text-accent-ink transition hover:brightness-110">
+            View Projects <ArrowRightIcon width={18} height={18} />
           </a>
-        </motion.div>
-      </motion.div>
-
-      {/* Right Image */}
-      <motion.div
-        className="col-span-4 flex justify-center items-center self-center order-first lg:order-last mb-8 lg:mb-0"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        {/* Mobile: squircle compact headshot */}
-        <div className="relative w-36 h-36 rounded-[30%] overflow-hidden border-[3px] border-blue-500 shadow-[0_0_0_6px_rgba(59,130,246,0.15)] md:hidden">
-          <Image
-            src="/dp.png"
-            alt="Vignesh T"
-            fill
-            className="object-cover object-top"
-            priority
-          />
+          <a href={SITE.resume} download="Vignesh-T-Resume.pdf" className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-2.5 font-semibold sm:py-3 transition hover:border-accent">
+            <DownloadIcon width={18} height={18} /> Download Resume
+          </a>
+          <a href="#contact" className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 font-semibold sm:py-3 text-muted transition hover:border-accent hover:text-fg">
+            <MailIcon width={18} height={18} /> Contact
+          </a>
         </div>
 
-        {/* Desktop: squircle tall frame */}
-        <div className="relative w-64 h-72 lg:w-72 lg:h-84 rounded-[30%] overflow-hidden border-[3px] border-blue-500 shadow-[0_0_0_6px_rgba(59,130,246,0.15)] hidden md:block">
-          <Image
-            src="/dp.png"
-            alt="Vignesh T"
-            fill
-            className="object-cover object-top"
-            priority
-          />
-        </div>
-      </motion.div>
+        <ul className="mt-8 flex items-center gap-3">
+          {social.map(({ label, href, Icon }) => (
+            <li key={label}>
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${label} (opens in a new tab)`}
+                className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface text-muted transition hover:-translate-y-0.5 hover:border-accent hover:text-fg"
+              >
+                <Icon />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-    </div>
+      <div className="mx-auto w-48 sm:w-60 md:w-full md:max-w-xs">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-line bg-surface p-1.5 shadow-[0_0_80px_var(--glow)]">
+          <div className="relative h-full w-full overflow-hidden rounded-[1.6rem]">
+            <Image src="/dp.png" alt="Portrait of Vignesh T" fill priority sizes="(max-width: 768px) 240px, 320px" className="object-cover object-top" />
+          </div>
+        </div>
+      </div>
+    </section>
   );
-};
-
-export default HeroSection
+}

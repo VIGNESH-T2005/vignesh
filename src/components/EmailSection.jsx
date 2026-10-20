@@ -1,197 +1,154 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { useForm, ValidationError } from "@formspree/react";
-import { motion, useInView } from 'framer-motion';
-import Link from "next/link";
-import Image from "next/image";
+import { useState } from "react";
+import { SITE } from "@/data/site";
+import Reveal from "./Reveal";
+import SectionHeading from "./SectionHeading";
+import { GithubIcon, LinkedinIcon, CodeIcon, MailIcon, DownloadIcon } from "./Icons";
 
+// Public Formspree form ID (safe to expose). Override with NEXT_PUBLIC_FORMSPREE_ID.
+const FORM_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID || "xvzpylkw";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+function validate(v) {
+  const e = {};
+  if (v.name.trim().length < 2) e.name = "Please enter your name.";
+  if (!EMAIL_RE.test(v.email.trim())) e.email = "Please enter a valid email address.";
+  if (v.message.trim().length < 10) e.message = "Message should be at least 10 characters.";
+  if (v.message.length > 2000) e.message = "Message must be under 2000 characters.";
+  return e;
+}
 
+const fieldClass = (err) =>
+  `mt-1.5 w-full rounded-xl border bg-bg px-4 py-3 text-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40 ${err ? "border-red-400" : "border-line focus:border-accent"}`;
 
-const EmailSection = () => {
- 
-   const [state, handleSubmit] = useForm("xvzpylkw");
-   const ref = useRef(null);
-   const isInView = useInView(ref, { once: true, margin: "-100px" });
-   const formRef = useRef(null);
+export default function EmailSection() {
+  const [values, setValues] = useState({ name: "", email: "", subject: "", message: "", _gotcha: "" });
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState("idle"); // idle | sending | success | error
 
-   // Reset form after successful submission
-   useEffect(() => {
-     if (state.succeeded) {
-       // Add a small delay to ensure animation completes
-       const timer = setTimeout(() => {
-         if (formRef.current) {
-           formRef.current.reset();
-           // Clear all input values explicitly
-           const inputs = formRef.current.querySelectorAll('input, textarea');
-           inputs.forEach(input => {
-             input.value = '';
-           });
-         }
-       }, 1500);
-       
-       return () => clearTimeout(timer);
-     }
-   }, [state.succeeded]);
-  
+  const set = (k) => (e) => {
+    setValues((v) => ({ ...v, [k]: e.target.value }));
+    if (errors[k]) setErrors((x) => ({ ...x, [k]: undefined }));
+  };
 
+  async function onSubmit(e) {
+    e.preventDefault();
+    if (status === "sending") return;
+    const found = validate(values);
+    setErrors(found);
+    if (Object.keys(found).length) return;
+    if (values._gotcha) return setStatus("success"); // bot: pretend success
 
+    setStatus("sending");
+    try {
+      const res = await fetch(`https://formspree.io/f/${FORM_ID}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          email: values.email.trim(),
+          subject: values.subject.trim() || "Portfolio contact",
+          message: values.message.trim(),
+        }),
+      });
+      if (!res.ok) throw new Error("submit failed");
+      setStatus("success");
+      setValues({ name: "", email: "", subject: "", message: "", _gotcha: "" });
+    } catch {
+      setStatus("error");
+    }
+  }
 
-   
+  const links = [
+    { label: "Email", href: `mailto:${SITE.email}`, Icon: MailIcon, text: SITE.email },
+    { label: "GitHub", href: SITE.socials.github.href, Icon: GithubIcon, text: SITE.socials.github.user },
+    { label: "LinkedIn", href: SITE.socials.linkedin.href, Icon: LinkedinIcon, text: "vignesh-t-web-dev" },
+    { label: "LeetCode", href: SITE.socials.leetcode.href, Icon: CodeIcon, text: SITE.socials.leetcode.user },
+  ];
+
   return (
-    <section
-      ref={ref}
-      id="contact"
-      className="grid grid-cols-1 md:grid-cols-2 my-12 md:my-12 py-12 md:py-24 px-4 md:px-6 gap-8 md:gap-4 relative"
-    >
-     <div className=" absolute top-3/4 -left-4 h-80 w-80 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(247, 85, 85, 0.92),transparent_70%)]  blur-2xl -translate-x-2   -translate-y-1/2   z-0 "
-></div>
-      <motion.div 
-        className="z-10"
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h5 className="text-4xl font-bold mt-4 my-2 bg-linear-to-r from-blue-400 to-black-500 bg-clip-text text-transparent">
-          Let&apos;s Connect
-        </h5>
-        <p className="text-[#ADB7BE] mb-4 max-w-md">
-          {" "}
-          I&apos;m currently looking for new opportunities, my inbox is always
-          open. Whether you have a question or just want to say hi, I&apos;ll
-          try my best to get back to you!
-        </p>
-        <div className="socials flex flex-row gap-2 ">
-          <Link href="https://github.com/VIGNESH-T2005">
-          <div className="bg-white rounded-full mr-4 ">
-            <Image src="/github-icon.svg" width={24} height={24} alt="Github Icon" />
-            </div>
-          </Link>
+    <section id="contact" aria-labelledby="contact-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6">
+      <SectionHeading eyebrow="Contact" title={<span id="contact-title">Let&apos;s work together</span>}>
+        I&apos;m looking for a full-stack developer role. Send a message and I&apos;ll reply as soon as I can.
+      </SectionHeading>
 
-          <Link href="https://www.linkedin.com/in/vignesh-t-web-dev/">
-           <div className="bg-white rounded-sm mr-4 ">
-            <Image src="/linkedin-icon.svg" width={24} height={24}  alt="Linkedin Icon" />
-            </div>
-          </Link>
+      <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
+        <Reveal>
+          <ul className="space-y-3">
+            {links.map(({ label, href, Icon, text }) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  {...(href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  className="flex items-center gap-4 rounded-xl border border-line bg-surface p-4 transition hover:border-accent"
+                >
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-surface-2 text-accent"><Icon /></span>
+                  <span>
+                    <span className="block text-xs text-muted">{label}</span>
+                    <span className="break-all text-sm font-medium">{text}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+            <li>
+              <a href={SITE.resume} download="Vignesh-T-Resume.pdf" className="flex items-center gap-4 rounded-xl border border-line bg-surface p-4 transition hover:border-accent">
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-surface-2 text-accent"><DownloadIcon /></span>
+                <span>
+                  <span className="block text-xs text-muted">Resume</span>
+                  <span className="text-sm font-medium">Download PDF</span>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </Reveal>
 
-            <Link href="https://leetcode.com/u/vignesh_webdev/">
-           <div className="bg-white rounded-sm ">
-            <Image src="/leetcode-icon.png" width={24} height={24}  alt="Leetcode Icon" />
-            </div>
-          </Link>
-
-        </div>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="relative z-20"
-        style={{ pointerEvents: 'auto' }}
-      >
-      
-      
-          <form 
-            ref={formRef}
-            onSubmit={handleSubmit}
-            className="flex flex-col relative z-10"
-            style={{ pointerEvents: 'auto' }}
-          >
-            <div className="mb-6">
-              <label
-                htmlFor="email"
-                className="text-white block mb-2 text-md font-medium"
-              >
-                Your email
-              </label>
-              <input
-                name="email"
-                type="email"
-                id="email"
-                required
-                autoComplete="email"
-                className="bg-[#18191E] border border-[#33353F] placeholder-[#9CA2A9] text-gray-100 text-sm rounded-lg block w-full p-2.5 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-400 relative z-10"
-                placeholder="you@gmail.com"
-                style={{ pointerEvents: 'auto' }}
-              />
- 
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="subject"
-                className="text-white block text-md mb-2 font-medium"
-              >
-                Subject
-              </label>
-              <input
-                name="subject"
-                type="text"
-                id="subject"
-                required
-                autoComplete="off"
-                className="bg-[#18191E] border border-[#33353F] placeholder-[#9CA2A9] text-gray-100 text-sm rounded-lg block w-full p-2.5 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-400 relative z-10"
-                placeholder="Just saying hi"
-                style={{ pointerEvents: 'auto' }}
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                htmlFor="message"
-                className="text-white block text-md mb-2 font-medium"
-              >
-                Message
-              </label>
-              <textarea
-                name="message"
-                id="message"
-                rows="5"
-                className="bg-[#18191E] border border-[#33353F] placeholder-[#9CA2A9] text-gray-100 text-sm rounded-lg block w-full p-2.5 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-400 resize-none relative z-10"
-                placeholder="Let's talk about..."
-                style={{ pointerEvents: 'auto' }}
-              />
-                 <ValidationError prefix="Message" field="message" errors={state.errors} />
+        <Reveal delay={0.08}>
+          <form onSubmit={onSubmit} noValidate className="rounded-2xl border border-line bg-surface p-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="c-name" className="text-sm font-medium">Name</label>
+                <input id="c-name" name="name" autoComplete="name" value={values.name} onChange={set("name")} aria-invalid={!!errors.name} aria-describedby={errors.name ? "c-name-err" : undefined} className={fieldClass(errors.name)} placeholder="Your name" />
+                {errors.name ? <p id="c-name-err" className="mt-1 text-xs text-red-500">{errors.name}</p> : null}
+              </div>
+              <div>
+                <label htmlFor="c-email" className="text-sm font-medium">Email</label>
+                <input id="c-email" name="email" type="email" autoComplete="email" value={values.email} onChange={set("email")} aria-invalid={!!errors.email} aria-describedby={errors.email ? "c-email-err" : undefined} className={fieldClass(errors.email)} placeholder="you@company.com" />
+                {errors.email ? <p id="c-email-err" className="mt-1 text-xs text-red-500">{errors.email}</p> : null}
+              </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={state.submitting}
-              className="px-6 py-4 w-full rounded-full text-white font-semibold bg-linear-to-br from-black-200 via-blue-500 to-black-200 hover:bg-slate-600 cursor-pointer relative z-20 transition-all disabled:opacity-50"
-              style={{ pointerEvents: 'auto' }}
-            >
-               {state.submitting ? "Sending..." : "Send Message"}
+            <div className="mt-4">
+              <label htmlFor="c-subject" className="text-sm font-medium">Subject <span className="font-normal text-muted">(optional)</span></label>
+              <input id="c-subject" name="subject" value={values.subject} onChange={set("subject")} className={fieldClass()} placeholder="Opportunity, question, hello…" />
+            </div>
+
+            <div className="mt-4">
+              <label htmlFor="c-message" className="text-sm font-medium">Message</label>
+              <textarea id="c-message" name="message" rows={5} maxLength={2000} value={values.message} onChange={set("message")} aria-invalid={!!errors.message} aria-describedby={errors.message ? "c-message-err" : undefined} className={`${fieldClass(errors.message)} resize-y`} placeholder="Tell me about the role or project…" />
+              {errors.message ? <p id="c-message-err" className="mt-1 text-xs text-red-500">{errors.message}</p> : null}
+            </div>
+
+            {/* Honeypot: hidden from people, tempting to bots */}
+            <div className="absolute -left-[9999px]" aria-hidden="true">
+              <label>Leave empty<input tabIndex={-1} autoComplete="off" name="_gotcha" value={values._gotcha} onChange={set("_gotcha")} /></label>
+            </div>
+
+            <button type="submit" disabled={status === "sending"} className="mt-5 w-full rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 font-semibold text-accent-ink transition hover:brightness-110 disabled:opacity-60">
+              {status === "sending" ? "Sending…" : "Send message"}
             </button>
 
-
+            <div aria-live="polite" className="mt-4 min-h-6 text-sm">
+              {status === "success" ? <p className="text-emerald-500">Thanks! Your message was sent. I&apos;ll get back to you soon.</p> : null}
+              {status === "error" ? (
+                <p className="text-red-500">
+                  Couldn&apos;t send your message. Please try again or email me at{" "}
+                  <a href={`mailto:${SITE.email}`} className="underline">{SITE.email}</a>.
+                </p>
+              ) : null}
+            </div>
           </form>
-        
-      </motion.div>
-
-      { 
-        state.succeeded && <motion.p 
-          className="col-span-1 md:col-span-2 text-green-400 text-center text-lg font-semibold mt-4 p-4 bg-green-900 bg-opacity-20 rounded-lg"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          ✓ Thanks for reaching out! 
-        </motion.p> 
-      }
-      
-      {state.errors && state.errors.length > 0 && (
-        <motion.div
-          className="col-span-1 md:col-span-2 text-red-400 text-center text-sm mt-4 p-4 bg-red-900 bg-opacity-20 rounded-lg"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <p>Please check your form for errors:</p>
-          {state.errors.map((error, idx) => (
-            <p key={idx}>{error.message}</p>
-          ))}
-        </motion.div>
-      )}
-
+        </Reveal>
+      </div>
     </section>
   );
-};
-
-export default EmailSection;
+}
