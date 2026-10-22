@@ -1,87 +1,53 @@
-"use client"
+"use client";
 import Link from "next/link";
-import React from "react";
-import NavLink from "./NavLink";
-import { useState } from "react";
-import MenuCard from "./MenuCard";
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from "react";
+import { SITE } from "@/data/site";
+import IndexMenu from "./IndexMenu";
+import { SearchIcon } from "./Icons";
 
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
+  const barRef = useRef(null);
+  const triggerRef = useRef(null);
 
+  // Frosted background appears once the page scrolls (class toggled directly, no re-render).
+  useEffect(() => {
+    const el = barRef.current;
+    const onScroll = () => el?.classList.toggle("header-solid", window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-//links in the navbar
-const navLinks=[
-    {
-        title:"About" ,
-        path:"#about"
-    } ,
-     {
-        title:"Problem Solving",
-        path: "#programming"
-    } ,
-    
-    {
-        title:"Projects" ,
-        path:"#projects"
-    } ,
-    {
-        title:"Contact" ,
-        path:"#contact"
-
-    } ,
-   
-]
-const Navbar = () => {
-     const [navbarOpen , setNavbarOpen]=useState(false);
   return (
-   
-        <motion.nav 
-            className="sticky top-0 z-50 w-full bg-[rgba(18,18,18,0.5)] backdrop-blur"
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-                <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6 lg:px-12">
-                    <div className="flex flex-wrap items-center justify-between py-4">
-            {/* LOGO */}
-     <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-linear-to-r from-blue-400 to-gray-500 text-white font-bold">
-  VT
-</div>
+    <>
+      <header ref={barRef} className="sticky top-0 z-40 border-b border-transparent transition-colors">
+        <nav aria-label="Primary" className="mx-auto flex h-[68px] max-w-7xl items-center justify-between gap-3 px-5 sm:px-8">
+          <Link href="/" className="group flex items-center gap-3" aria-label={`${SITE.name}, home`}>
+            <span className="relative grid h-10 w-10 place-items-center rounded-xl bg-accent font-display text-base font-extrabold text-accent-ink transition-transform duration-300 group-hover:-rotate-6">VT</span>
+            <span className="hidden font-display text-lg font-bold tracking-tight sm:block">Vignesh T<span className="text-accent">.</span></span>
+          </Link>
 
-<div className="mobile-menu block md:hidden">
-    {
-        !navbarOpen ? ( //show the three lined icon
-            <button  onClick={()=> setNavbarOpen(true)} className="flex text-slate-200 items-center px-2 py-2 border rounded border-slate-200 hover:text-white hover:border-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-</svg>
+          <Link href="/contact" className="glass hidden items-center gap-2 rounded-full px-4 py-2 text-xs text-muted transition hover:text-fg md:flex">
+            <span className="live-dot h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
+            Available for full-stack roles
+          </Link>
 
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => window.dispatchEvent(new Event("open-palette"))} aria-label="Search (Ctrl or Command + K)"
+              className="glass flex h-11 items-center gap-2 rounded-full px-4 text-sm text-muted transition hover:border-accent hover:text-fg">
+              <SearchIcon width={16} height={16} />
+              <kbd className="hidden font-mono text-[10px] sm:inline">Ctrl K</kbd>
             </button>
-        ):(  //show the cross mark
-             <button  onClick={()=> setNavbarOpen(false)}  className="flex text-slate-200 items-center px-2 py-2 border rounded border-slate-200 hover:text-white hover:border-white">
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-</svg>
-</button>
-        )
-    }
-</div>
-
-<div className="menu hidden md:block md:w-auto" id="navbar">
-    <ul className="flex p-4 md:p-0 md:flex-row md:space-x-8 mt-0">
-        {
-            navLinks.map((link ,index)=>(
-                <li key={index}>
-                    <NavLink href={link.path} title={link.title}/>
-                </li>
-            ))
-        }
-    </ul>
-</div>
-                    </div>
-                </div>
-{navbarOpen ? <MenuCard links={navLinks}/> :null}
-    </motion.nav>
+            <button ref={triggerRef} type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open}
+              className="flex h-11 items-center gap-3 rounded-full bg-fg px-5 text-sm font-semibold text-bg transition hover:bg-accent">
+              Index
+              <span aria-hidden="true" className="flex flex-col gap-[5px]"><span className="block h-[2px] w-5 bg-current" /><span className="block h-[2px] w-3 bg-current" /></span>
+            </button>
+          </div>
+        </nav>
+      </header>
+      {open ? <IndexMenu onClose={() => { setOpen(false); triggerRef.current?.focus(); }} /> : null}
+    </>
   );
-};
-
-export default Navbar;
+}

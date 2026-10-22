@@ -1,64 +1,48 @@
-"use client"
-import React, { useRef } from 'react'
-import ProjectCard from './ProjectCard'
-import { motion, useInView } from 'framer-motion'
+"use client";
+import { useCallback, useMemo, useState } from "react";
+import { PROJECTS } from "@/data/site";
+import Reveal from "./Reveal";
+import SectionHeading from "./SectionHeading";
+import ProjectCard from "./ProjectCard";
+import ProjectModal from "./ProjectModal";
 
+export default function ProjectSection() {
+  const categories = useMemo(() => ["All", ...new Set(PROJECTS.map((p) => p.category))], []);
+  const [filter, setFilter] = useState("All");
+  const [openProject, setOpenProject] = useState(null);
+  const close = useCallback(() => setOpenProject(null), []);
 
-//data for the project cards
-const projectsData=[
-  {
-  id: 1,
-  title: "HRC TECH",
-  description: "HRC TECH is a e-learning platform that provides a wide range of courses and resources for learners to enhance their skills and knowledge in various domains.",
-  image: "/hrc-tech.png",
-  url:"https://github.com/VIGNESH-T2005/hrc-tech",
-  liveurl:"https://hrctech.onrender.com/"
-},
-  {
-  id: 2,
-  title: "Shop Zone",
-  description: "Developed a basic e-commerce website named Shop Zone with product listings, shopping cart functionality, and responsive user interface design.",
-  image: "/shop_zone.png",
-  url:"https://github.com/VIGNESH-T2005/shop_zone",
-  liveurl:"https://shop-zone-ecomm.vercel.app/"
-}
-]
-
-const ProjectSection = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const visible = PROJECTS.filter((p) => filter === "All" || p.category === filter);
 
   return (
-    <div ref={ref}>
-        <motion.div 
-          className="text-center text-4xl font-bold mt-4 mb-8 md:mb-12 bg-linear-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5 }}
-        >
-          My Projects
-        </motion.div>
+    <section id="projects" aria-labelledby="projects-title" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-20 sm:px-6">
+      <SectionHeading eyebrow="Projects" title={<span id="projects-title">Things I&apos;ve built</span>}>
+        Real, deployed projects. Each one links to its source code and, where hosted, a live demo.
+      </SectionHeading>
 
-        <motion.div 
-          className="grid md:grid-cols-2 gap-8 md:gap-12"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-            {projectsData.map((project, index)=> (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.1 * index }}
-              >
-                <ProjectCard title={project.title} description={project.description} imgUrl={project.image} url={project.url} liveurl={project.liveurl} />
-              </motion.div>
-            ))}
-        </motion.div>
-      
-    </div>
-  )
+      <div role="group" aria-label="Filter projects by category" className="mb-8 flex flex-wrap gap-2">
+        {categories.map((c) => (
+          <button
+            key={c}
+            type="button"
+            aria-pressed={filter === c}
+            onClick={() => setFilter(c)}
+            className={`rounded-full border px-4 py-1.5 text-sm transition ${filter === c ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface text-muted hover:border-accent hover:text-fg"}`}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {visible.map((p, i) => (
+          <Reveal key={p.id} delay={i * 0.05} className={i === 0 && filter === "All" ? "md:col-span-2" : ""}>
+            <ProjectCard project={p} onOpen={setOpenProject} featured={i === 0 && filter === "All"} />
+          </Reveal>
+        ))}
+      </div>
+
+      {openProject ? <ProjectModal project={openProject} onClose={close} /> : null}
+    </section>
+  );
 }
-
-export default ProjectSection
