@@ -1,87 +1,91 @@
-"use client"
+"use client";
 import Link from "next/link";
-import React from "react";
-import NavLink from "./NavLink";
-import { useState } from "react";
-import MenuCard from "./MenuCard";
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from "react";
+import { SITE } from "@/data/site";
+import IndexMenu from "./IndexMenu";
+import { SearchIcon } from "./Icons";
+import Magnetic from "./Magnetic";
 
+const openPalette = () => window.dispatchEvent(new Event("open-palette"));
 
+// Desktop: a slim vertical rail pinned to the left edge. Mobile/tablet: a compact top bar.
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
+  const barRef = useRef(null);
+  const lastTrigger = useRef(null);
 
-//links in the navbar
-const navLinks=[
-    {
-        title:"About" ,
-        path:"#about"
-    } ,
-     {
-        title:"Problem Solving",
-        path: "#programming"
-    } ,
-    
-    {
-        title:"Projects" ,
-        path:"#projects"
-    } ,
-    {
-        title:"Contact" ,
-        path:"#contact"
+  // Frosted background on the mobile top bar appears once the page scrolls.
+  useEffect(() => {
+    const el = barRef.current;
+    const onScroll = () => el?.classList.toggle("header-solid", window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-    } ,
-   
-]
-const Navbar = () => {
-     const [navbarOpen , setNavbarOpen]=useState(false);
+  const openIndex = (e) => { lastTrigger.current = e.currentTarget; setOpen(true); };
+  const closeIndex = () => { setOpen(false); lastTrigger.current?.focus(); };
+
   return (
-   
-        <motion.nav 
-            className="sticky top-0 z-50 w-full bg-[rgba(18,18,18,0.5)] backdrop-blur"
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-                <div className="mx-auto w-full max-w-screen-xl px-4 sm:px-6 lg:px-12">
-                    <div className="flex flex-wrap items-center justify-between py-4">
-            {/* LOGO */}
-     <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-linear-to-r from-blue-400 to-gray-500 text-white font-bold">
-  VT
-</div>
+    <>
+      {/* Mobile / tablet top bar */}
+      <header ref={barRef} className="sticky top-0 z-40 border-b border-transparent transition-colors lg:hidden">
+        <nav aria-label="Primary" className="mx-auto flex h-[64px] max-w-7xl items-center justify-between gap-3 px-5 sm:px-8">
+          <Link href="/" className="group flex items-center gap-3" aria-label={`${SITE.name}, home`}>
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent font-display text-base font-extrabold text-accent-ink transition-transform duration-300 group-hover:-rotate-6">VT</span>
+            <span className="hidden font-display text-lg font-bold tracking-tight sm:block">Vignesh T<span className="text-accent">.</span></span>
+          </Link>
 
-<div className="mobile-menu block md:hidden">
-    {
-        !navbarOpen ? ( //show the three lined icon
-            <button  onClick={()=> setNavbarOpen(true)} className="flex text-slate-200 items-center px-2 py-2 border rounded border-slate-200 hover:text-white hover:border-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-</svg>
+          <Link href="/contact" className="glass hidden items-center gap-2 rounded-full px-4 py-2 text-xs text-muted transition hover:text-fg md:flex">
+            <span className="live-dot h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
+            Available for full-stack roles
+          </Link>
 
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={openPalette} aria-label="Search"
+              className="glass grid h-11 w-11 place-items-center rounded-full text-muted transition hover:border-accent hover:text-fg">
+              <SearchIcon width={16} height={16} />
             </button>
-        ):(  //show the cross mark
-             <button  onClick={()=> setNavbarOpen(false)}  className="flex text-slate-200 items-center px-2 py-2 border rounded border-slate-200 hover:text-white hover:border-white">
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-</svg>
-</button>
-        )
-    }
-</div>
+            <button type="button" onClick={openIndex} aria-haspopup="dialog" aria-expanded={open}
+              className="flex h-11 items-center gap-3 rounded-full bg-fg px-5 text-sm font-semibold text-bg transition hover:bg-accent hover:text-accent-ink">
+              Index
+              <span aria-hidden="true" className="flex flex-col gap-[5px]"><span className="block h-[2px] w-5 bg-current" /><span className="block h-[2px] w-3 bg-current" /></span>
+            </button>
+          </div>
+        </nav>
+      </header>
 
-<div className="menu hidden md:block md:w-auto" id="navbar">
-    <ul className="flex p-4 md:p-0 md:flex-row md:space-x-8 mt-0">
-        {
-            navLinks.map((link ,index)=>(
-                <li key={index}>
-                    <NavLink href={link.path} title={link.title}/>
-                </li>
-            ))
-        }
-    </ul>
-</div>
-                    </div>
-                </div>
-{navbarOpen ? <MenuCard links={navLinks}/> :null}
-    </motion.nav>
+      {/* Desktop left rail */}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-24 flex-col items-center justify-between border-r border-line bg-bg/60 py-7 backdrop-blur-xl lg:flex">
+        <Link href="/" aria-label={`${SITE.name}, home`}
+          className="group grid h-12 w-12 place-items-center rounded-2xl bg-accent font-display text-lg font-extrabold text-accent-ink transition-transform duration-300 hover:-rotate-6">
+          VT
+        </Link>
+
+        <nav aria-label="Primary" className="flex flex-col items-center gap-3">
+          <button type="button" onClick={openPalette} aria-label="Search (Ctrl or Command + K)"
+            className="glass grid h-12 w-12 place-items-center rounded-full text-muted transition hover:border-accent hover:text-fg">
+            <SearchIcon width={18} height={18} />
+          </button>
+          <span aria-hidden="true" className="font-mono text-[9px] uppercase tracking-widest text-muted">Ctrl K</span>
+          <div className="mt-4">
+            <Magnetic>
+              <button type="button" onClick={openIndex} aria-haspopup="dialog" aria-expanded={open} aria-label="Open index menu"
+                className="flex h-14 w-14 flex-col items-center justify-center gap-[5px] rounded-full bg-fg text-bg transition hover:bg-accent hover:text-accent-ink">
+                <span aria-hidden="true" className="block h-[2px] w-5 bg-current" /><span aria-hidden="true" className="block h-[2px] w-3 bg-current" />
+              </button>
+            </Magnetic>
+          </div>
+          <span aria-hidden="true" className="font-mono text-[9px] uppercase tracking-widest text-muted">Index</span>
+        </nav>
+
+        <Link href="/contact" aria-label="Available for full-stack roles. Contact me" className="group flex flex-col items-center gap-3">
+          <span className="live-dot h-2.5 w-2.5 rounded-full bg-accent" aria-hidden="true" />
+          <span aria-hidden="true" className="rotate-180 font-mono text-[10px] uppercase tracking-[0.22em] text-muted transition group-hover:text-fg [writing-mode:vertical-rl]">Open to roles</span>
+        </Link>
+      </aside>
+
+      {open ? <IndexMenu onClose={closeIndex} /> : null}
+    </>
   );
-};
-
-export default Navbar;
+}
