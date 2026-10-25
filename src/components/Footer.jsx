@@ -1,26 +1,19 @@
-"use client"
-import React, { useRef } from "react";
-import { motion, useInView } from 'framer-motion';
+import Link from "next/link";
+import { SITE } from "@/data/site";
 
-const Footer = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
+export default function Footer() {
   return (
-    <motion.footer 
-      ref={ref}
-      className="footer border z-10 border-t-[#33353F] border-l-transparent border-r-transparent text-white"
-      initial={{ opacity: 0 }}
-      animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      
-      <div className="container p-5 flex items-center justify-center">
-        
-        <p className="text-slate-600">All rights reserved by Vignesh</p>
+    <footer className="mt-16 border-t border-line">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-8 text-sm text-muted sm:px-8">
+        <p>© <span suppressHydrationWarning>{new Date().getFullYear()}</span> {SITE.name}. All rights reserved.</p>
+        <ul className="flex flex-wrap gap-x-6 gap-y-2">
+          <li><Link href="/recruiter" className="u-link hover:text-fg">Hiring summary</Link></li>
+          <li><Link href="/github" className="u-link hover:text-fg">GitHub activity</Link></li>
+          <li><Link href="/blog" className="u-link hover:text-fg">Engineering notes</Link></li>
+          <li><a href={SITE.resume} download="Vignesh-T-Resume.pdf" className="u-link hover:text-fg">Résumé</a></li>
+          <li><a href={`mailto:${SITE.email}`} className="u-link hover:text-fg">{SITE.email}</a></li>
+        </ul>
       </div>
-    </motion.footer>
+    </footer>
   );
-};
-
-export default Footer;
+}
