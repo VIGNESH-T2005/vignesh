@@ -1,159 +1,134 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { motion } from 'framer-motion';
-import React from 'react'
+import { useEffect, useRef, useState } from "react";
+import { CHAT_SUGGESTIONS, SITE } from "@/data/site";
+import { ChatIcon, CloseIcon, SendIcon } from "./Icons";
 
-const AiChatbotSection = () => {
+const MAX_CHARS = 500;
+const GREETING = `Hi! I'm an AI assistant for ${SITE.name}'s portfolio. Ask me about his skills, projects or education.`;
+
+// Floating chat widget. The API key stays on the server (/api/chat).
+export default function AiChatbotSection() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]); // {role: "user"|"assistant", content, error?}
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const endRef = useRef(null);
+  const inputRef = useRef(null);
+  const abortRef = useRef(null);
 
-  // Auto-scroll to bottom when messages change
+  useEffect(() => { endRef.current?.scrollIntoView({ block: "end" }); }, [messages, loading, open]);
+  useEffect(() => { if (open) inputRef.current?.focus(); }, [open]);
+  useEffect(() => () => abortRef.current?.abort(), []);
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (!open) return;
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
-  async function sendMessage() {
-  if (!input.trim()) return;
+  async function send(text) {
+    const question = text.trim();
+    if (!question || loading) return;
+    const history = messages.filter((m) => !m.error).map(({ role, content }) => ({ role, content }));
+    setMessages((m) => [...m, { role: "user", content: question }]);
+    setInput("");
+    setLoading(true);
 
-  const userMessage = input;
-  setInput("");
-
-  setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
-
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: userMessage }),
-  });
-
-  let data = null;
-  try {
-    data = await res.json();
-  } catch {
-    data = null;
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const timeout = setTimeout(() => controller.abort(), 25_000);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question, history }),
+        signal: controller.signal,
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.reply) throw new Error(data?.error || "Something went wrong. Please try again.");
+      setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
+    } catch (err) {
+      const msg = err.name === "AbortError" ? "That took too long. Please try again." : err.message || "Network error. Please try again.";
+      setMessages((m) => [...m, { role: "assistant", content: msg, error: true }]);
+    } finally {
+      clearTimeout(timeout);
+      setLoading(false);
+    }
   }
 
-  if (!res.ok) {
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        text: data?.error || "Sorry, I ran into an issue. Please try again.",
-      },
-    ]);
-    return;
-  }
-
-  setMessages((prev) => [
-    ...prev,
-    { role: "assistant", text: data?.reply || "I could not generate a reply." },
-  ]);
-}
   return (
     <>
-      {/* Floating Button */}
-      <div className="fixed bottom-6 right-6 flex flex-col items-center gap-2 z-50">
-        {!open && (
-          <span className="text-xs text-cyan-300 bg-blue-900/70 px-3 py-1 rounded-full border border-cyan-400/30 whitespace-nowrap">
-            Ask AI Chatbot 💬
-          </span>
-        )}
-        <motion.button
-          onClick={() => setOpen(!open)}
-          className="w-14 h-14 rounded-full
-          bg-linear-to-r from-blue-500 to-blue-500
-          shadow-[0_0_60px_rgba(34,211,238,0.95)]
-          text-white text-xl"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 1 }}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          🤖
-        </motion.button>
-      </div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-controls="chat-panel"
+        aria-label={open ? "Close AI assistant" : "Open AI assistant"}
+        data-chat className="fixed bottom-5 right-5 z-40 flex h-14 items-center gap-2 rounded-full bg-accent px-5 font-semibold text-accent-ink shadow-[0_8px_40px_var(--glow)] transition hover:bg-white"
+      >
+        {open ? <CloseIcon /> : <ChatIcon />}
+        <span className="hidden sm:inline">{open ? "Close" : "Ask AI"}</span>
+      </button>
 
-      {open && (
-        <motion.div 
-          className="fixed bottom-24 right-6 w-80 h-[420px]
-bg-blue-950/40 backdrop-blur-2xl
-border border-blue-400/30 rounded-xl
-shadow-[0_0_60px_rgba(59,130,246,0.45)]
-flex flex-col z-50"
-          initial={{ scale: 0, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0, opacity: 0, y: 20 }}
-          transition={{ duration: 0.3 }}
+      {open ? (
+        <div
+          id="chat-panel"
+          role="dialog"
+          aria-label="AI assistant"
+          data-chat className="frost fixed inset-x-3 bottom-24 z-40 flex h-[min(32rem,calc(100vh-8rem))] flex-col overflow-hidden rounded-3xl shadow-2xl sm:inset-x-auto sm:right-5 sm:w-96"
         >
-
-          <div className="p-4 border-b border-gray-700 text-blue-400 font-semibold">
-            Ask about Vignesh
+          <div className="border-b border-white/10 px-4 py-3">
+            <p className="display text-lg">Ask about Vignesh</p>
+            <p className="text-xs text-muted">AI answers about his skills, projects and background.</p>
           </div>
 
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
+          <div className="flex-1 space-y-3 overflow-y-auto p-4" role="log" aria-live="polite">
+            <p className="max-w-[85%] rounded-2xl rounded-bl-sm bg-white/5 px-3 py-2 text-sm">{GREETING}</p>
+            {messages.length === 0 ? (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {CHAT_SUGGESTIONS.map((s) => (
+                  <button key={s} type="button" onClick={() => send(s)} className="rounded-full border border-line px-3 py-1.5 text-xs text-muted transition hover:border-accent hover:text-fg">
+                    {s}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             {messages.map((m, i) => (
-              <div
+              <p
                 key={i}
-                className={`max-w-[80%] px-3 py-2 rounded-lg ${
+                className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm ${
                   m.role === "user"
-                    ? "bg-purple-500 text-white ml-auto"
-                    : "bg-gray-800 text-gray-200"
+                    ? "ml-auto rounded-br-sm bg-accent text-accent-ink"
+                    : m.error
+                    ? "rounded-bl-sm border border-red-400/40 bg-red-500/10 text-red-500"
+                    : "rounded-bl-sm bg-white/5"
                 }`}
               >
-                {m.text}
-              </div>
+                {m.content}
+              </p>
             ))}
-            <div ref={messagesEndRef} />
+            {loading ? <p className="text-sm text-muted" role="status">Thinking…</p> : null}
+            <div ref={endRef} />
           </div>
 
-          <div className="p-3 border-t border-gray-700 flex items-center gap-2">
-  <input
-    value={input}
-    onChange={(e) => setInput(e.target.value)}
-    placeholder="Ask about projects, skills..."
-    className="flex-1 bg-[#111] border border-gray-700
-    rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500
-    focus:outline-none focus:border-purple-400"
-    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-  />
-
-  <button
-    onClick={sendMessage}
-    disabled={!input.trim()}
-    className="
-      p-2 rounded-lg
-      bg-purple-600 hover:bg-purple-700
-      disabled:bg-gray-700 disabled:cursor-not-allowed
-      transition-all
-      hover:shadow-[0_0_15px_rgba(168,85,247,0.6)]
-    "
-    aria-label="Send message"
-    title="Send"
-  >
-    {/* Send Icon */}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5 text-white"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M5 12h14M12 5l7 7-7 7"
-      />
-    </svg>
-  </button>
-</div>
-        </motion.div>
-      )}
+          <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="flex items-center gap-2 border-t border-white/10 p-3">
+            <label htmlFor="chat-input" className="sr-only">Ask a question</label>
+            <input
+              id="chat-input"
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              maxLength={MAX_CHARS}
+              placeholder="Ask about skills, projects…"
+              autoComplete="off"
+              className="min-w-0 flex-1 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-sm placeholder:text-muted focus:border-accent focus:outline-none"
+            />
+            <button type="submit" disabled={loading || !input.trim()} aria-label="Send message" className="grid h-10 w-10 place-items-center rounded-full bg-accent text-accent-ink transition disabled:opacity-40">
+              <SendIcon width={18} height={18} />
+            </button>
+          </form>
+        </div>
+      ) : null}
     </>
   );
 }
-
-export default AiChatbotSection;
